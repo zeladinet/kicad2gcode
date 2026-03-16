@@ -1,6 +1,6 @@
 # Overview
 
-## origina code was cloned from git clone https://github.com/r-gal/KiCAD2GCode, didn't run for me and I made updates (using ChatGPT) to get it running successfully.
+## original code was cloned from git clone https://github.com/r-gal/KiCAD2GCode, didn't run for me and I made updates (using ChatGPT) to get it running successfully.
 
 The purpose of this program is to create GCODE file to create PCB on CNC milling machine. It can convert PCB in KiCAD format into GCODE in linux-cnc format. Program is written as c# .net Windows Forms Application.
 
