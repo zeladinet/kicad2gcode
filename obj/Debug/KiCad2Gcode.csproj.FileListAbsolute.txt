@@ -1,0 +1,12 @@
+C:\Users\zelad\OneDrive\Source\KiCAD2GCode\bin\Debug\KiCad2Gcode.exe.config
+C:\Users\zelad\OneDrive\Source\KiCAD2GCode\bin\Debug\KiCad2Gcode.exe
+C:\Users\zelad\OneDrive\Source\KiCAD2GCode\bin\Debug\KiCad2Gcode.pdb
+C:\Users\zelad\OneDrive\Source\KiCAD2GCode\obj\Debug\KiCad2Gcode.csproj.AssemblyReference.cache
+C:\Users\zelad\OneDrive\Source\KiCAD2GCode\obj\Debug\KiCad2Gcode.Form1.resources
+C:\Users\zelad\OneDrive\Source\KiCAD2GCode\obj\Debug\KiCad2Gcode.NewDrillForm.resources
+C:\Users\zelad\OneDrive\Source\KiCAD2GCode\obj\Debug\KiCad2Gcode.Properties.Resources.resources
+C:\Users\zelad\OneDrive\Source\KiCAD2GCode\obj\Debug\KiCad2Gcode.TestForm.resources
+C:\Users\zelad\OneDrive\Source\KiCAD2GCode\obj\Debug\KiCad2Gcode.csproj.GenerateResource.cache
+C:\Users\zelad\OneDrive\Source\KiCAD2GCode\obj\Debug\KiCad2Gcode.csproj.CoreCompileInputs.cache
+C:\Users\zelad\OneDrive\Source\KiCAD2GCode\obj\Debug\KiCad2Gcode.exe
+C:\Users\zelad\OneDrive\Source\KiCAD2GCode\obj\Debug\KiCad2Gcode.pdb

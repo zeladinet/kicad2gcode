@@ -2,16 +2,10 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
-
-
 
 namespace KiCad2Gcode
 {
-
     internal class Drawer
     {
         PictureBox pBox;
@@ -26,12 +20,10 @@ namespace KiCad2Gcode
         int offX = 0;
         int offY = 0;
 
-
-
         public Drawer(PictureBox pBox_, Panel pPanel)
         {
             this.pBox = pBox_;
-            this.pPanel = pPanel;   
+            this.pPanel = pPanel;
         }
 
         public void SetScale(int scale_)
@@ -45,7 +37,6 @@ namespace KiCad2Gcode
             offY = y;
         }
 
-
         private void DrawDotInt(Point2D position, int size, Bitmap bmp, System.Drawing.Color color)
         {
             if (position.type == Point2D.PointType_et.CROSS_X)
@@ -57,57 +48,58 @@ namespace KiCad2Gcode
                 color = Color.Purple;
             }
 
-
-
             using (Graphics g = Graphics.FromImage(bmp))
             {
-
-                g.FillEllipse(new SolidBrush(color),
-                (float)((position.x) * scale + offX - size),
-                H - ((float)((position.y) * scale + offY + size)),
-                (float)(size * 2),
-                (float)(size * 2));
+                g.FillEllipse(
+                    new SolidBrush(color),
+                    (float)(position.x * scale + offX - size),
+                    H - (float)(position.y * scale + offY + size),
+                    (float)(size * 2),
+                    (float)(size * 2));
             }
         }
-        
+
         private void DrawCircleInt(Point2D position, int size, Bitmap bmp, System.Drawing.Color color)
         {
             using (Graphics g = Graphics.FromImage(bmp))
             {
-
-                g.DrawEllipse(new Pen(color),
-                (float)((position.x) * scale + offX - size),
-                H - ((float)((position.y) * scale + offY + size)),
-                (float)(size * 2),
-                (float)(size * 2));
+                g.DrawEllipse(
+                    new Pen(color),
+                    (float)(position.x * scale + offX - size),
+                    H - (float)(position.y * scale + offY + size),
+                    (float)(size * 2),
+                    (float)(size * 2));
             }
         }
 
         public void DrawDot(Point2D position, int size, System.Drawing.Color color)
         {
+            if (bmp == null) return;
+
             DrawDotInt(position, size, bmp, color);
             pBox.Image = bmp;
             pBox.Refresh();
         }
 
-
         public void DrawElement(Point2D startPt, Point2D endPt, Arc arc)
         {
+            if (bmp == null) return;
+
             DrawChunk(startPt, endPt, arc, bmp, System.Drawing.Color.Black);
             pBox.Image = bmp;
             pBox.Refresh();
         }
 
-
-
         public void DrawListOfElements(LinkedList<Node> list)
         {
+            if (bmp == null || list == null) return;
+
             LinkedListNode<Node> n = list.First;
 
-            while(n != null)
+            while (n != null)
             {
                 Point2D startPt;
-                if(n.Value.startPt != null)
+                if (n.Value.startPt != null)
                 {
                     startPt = n.Value.startPt;
                 }
@@ -116,39 +108,42 @@ namespace KiCad2Gcode
                     LinkedListNode<Node> prevNode = n.Previous ?? n.List.Last;
                     startPt = prevNode.Value.pt;
                 }
+
                 System.Drawing.Color color = System.Drawing.Color.Black;
 
-                if(n.Value.active)
+                if (n.Value.active)
                 {
                     color = System.Drawing.Color.Red;
                 }
+
                 DrawChunk(startPt, n.Value.pt, n.Value.arc, bmp, color);
                 n = n.Next;
             }
+
             pBox.Image = bmp;
             pBox.Refresh();
         }
 
         public void SetCentre(Point2D position)
         {
-            pPanel.AutoScrollPosition = new Point((int)(scale * position.x) -1000,(int) H -  (int)(scale * position.y)-600);
+            pPanel.AutoScrollPosition = new Point(
+                (int)(scale * position.x) - 1000,
+                (int)H - (int)(scale * position.y) - 600);
         }
 
-        private void DrawChunk(Point2D startPt, Point2D endPt, Arc arc, Bitmap bmp, System.Drawing.Color color )
+        private void DrawChunk(Point2D startPt, Point2D endPt, Arc arc, Bitmap bmp, System.Drawing.Color color)
         {
-
-            
-
-            if(arc == null)
-            {                
+            if (arc == null)
+            {
                 using (Graphics g = Graphics.FromImage(bmp))
                 {
-                    g.DrawLine(new Pen(color), 
-                        (float)startPt.x * scale + offX ,
-                        H-((float)startPt.y * scale + offY ),
-                        (float)endPt.x * scale + offX ,
-                        H-((float)endPt.y * scale + offY ));
-                } 
+                    g.DrawLine(
+                        new Pen(color),
+                        (float)startPt.x * scale + offX,
+                        H - ((float)startPt.y * scale + offY),
+                        (float)endPt.x * scale + offX,
+                        H - ((float)endPt.y * scale + offY));
+                }
             }
             else
             {
@@ -156,6 +151,7 @@ namespace KiCad2Gcode
                 {
                     float angleStart;
                     float angleEnd;
+
                     if (arc.ccw == false)
                     {
                         angleStart = (float)(arc.startAngle * 180 / Math.PI);
@@ -175,40 +171,35 @@ namespace KiCad2Gcode
                     while (angleStart < 0) { angleStart += 360; }
                     while (angleStart > 360) { angleStart -= 360; }
 
-                    g.DrawArc(new Pen(color),
-                        (float)((arc.centre.x -  arc.radius) * scale + offX ),
-                        H - ((float)((arc.centre.y +  arc.radius) * scale + offY )),
-                        (float)(arc.radius * 2* scale),
-                        (float)(arc.radius * 2 *scale),
+                    g.DrawArc(
+                        new Pen(color),
+                        (float)((arc.centre.x - arc.radius) * scale + offX),
+                        H - ((float)((arc.centre.y + arc.radius) * scale + offY)),
+                        (float)(arc.radius * 2 * scale),
+                        (float)(arc.radius * 2 * scale),
                         angleStart,
                         angleSweep);
                 }
-
             }
-
         }
-
 
         private void DrawDrill(Drill drill, Bitmap bmp)
         {
             using (Graphics g = Graphics.FromImage(bmp))
             {
-
-                g.DrawArc(new Pen(Color.Black),
-                    (float)((drill.pos.x - drill.diameter/2) * scale + offX ),
-                    H - ((float)((drill.pos.y + drill.diameter/2) * scale + offY )),
-                    (float)(drill.diameter  * scale),
-                    (float)(drill.diameter  * scale),
+                g.DrawArc(
+                    new Pen(Color.Black),
+                    (float)((drill.pos.x - drill.diameter / 2) * scale + offX),
+                    H - ((float)((drill.pos.y + drill.diameter / 2) * scale + offY)),
+                    (float)(drill.diameter * scale),
+                    (float)(drill.diameter * scale),
                     0,
                     360);
             }
-
-
         }
 
         public void InitBitmap(int xSize, int ySize)
         {
-
             bmp = new Bitmap(xSize, ySize);
             pBox.Width = bmp.Width;
             pBox.Height = bmp.Height;
@@ -223,10 +214,9 @@ namespace KiCad2Gcode
             pBox.Refresh();
         }
 
-
         public void DrawNetlist(Net[] netList)
         {
-            /* draw nets */
+            if (bmp == null) return;
 
             if (netList != null)
             {
@@ -235,7 +225,6 @@ namespace KiCad2Gcode
                     foreach (Figure f in net.figures)
                     {
                         LinkedListNode<Node> n = f.shape.points.First;
-
                         bool first = true;
 
                         while (n != null)
@@ -263,7 +252,6 @@ namespace KiCad2Gcode
 
                             DrawChunk(nPrev.Value.pt, n.Value.pt, n.Value.arc, bmp, color);
 
-
                             if (drawDots)
                             {
                                 DrawDotInt(n.Value.pt, 2, bmp, first ? Color.DarkOrange : Color.Black);
@@ -273,7 +261,6 @@ namespace KiCad2Gcode
                             {
                                 first = false;
                             }
-
 
                             n = n.Next;
                         }
@@ -301,13 +288,13 @@ namespace KiCad2Gcode
                                     color = Color.Pink;
                                 }
 
-
-
                                 DrawChunk(nPrev.Value.pt, n.Value.pt, n.Value.arc, bmp, color);
+
                                 if (drawDots)
                                 {
                                     DrawDotInt(n.Value.pt, 3, bmp, first ? Color.DarkOrange : Color.Black);
                                 }
+
                                 if (first)
                                 {
                                     first = false;
@@ -316,12 +303,11 @@ namespace KiCad2Gcode
                                 n = n.Next;
                             }
                         }
-
                     }
+
                     foreach (Figure f in net.zoneFigures)
                     {
                         LinkedListNode<Node> n = f.shape.points.First;
-
                         bool first = true;
 
                         while (n != null)
@@ -343,15 +329,16 @@ namespace KiCad2Gcode
                             }
 
                             DrawChunk(nPrev.Value.pt, n.Value.pt, n.Value.arc, bmp, color);
+
                             if (drawDots)
                             {
                                 DrawDotInt(n.Value.pt, 3, bmp, first ? Color.DarkOrange : Color.Black);
                             }
+
                             if (first)
                             {
                                 first = false;
                             }
-
 
                             n = n.Next;
                         }
@@ -381,6 +368,7 @@ namespace KiCad2Gcode
                                 {
                                     DrawDotInt(n.Value.pt, first ? 4 : 2, bmp, first ? Color.DarkOrange : Color.Black);
                                 }
+
                                 if (first)
                                 {
                                     first = false;
@@ -391,14 +379,15 @@ namespace KiCad2Gcode
                         }
                     }
                 }
-
-
             }
+
             pBox.Refresh();
         }
 
         public void DrawCuts(Figure cuts)
         {
+            if (bmp == null) return;
+
             if (cuts != null)
             {
                 if (cuts.shape != null)
@@ -413,7 +402,6 @@ namespace KiCad2Gcode
                     }
                 }
 
-
                 foreach (Polygon p in cuts.holes)
                 {
                     LinkedListNode<Node> nc = p.points.First;
@@ -426,25 +414,31 @@ namespace KiCad2Gcode
                     }
                 }
             }
+
             pBox.Refresh();
         }
 
         public void DrawDrills(List<Drill> drills)
         {
+            if (bmp == null || drills == null) return;
+
             foreach (Drill drill in drills)
             {
                 DrawDrill(drill, bmp);
             }
+
             pBox.Refresh();
         }
 
         public void DrawMillPath(List<Polygon> millPath)
         {
+            if (bmp == null || millPath == null) return;
+
             foreach (Polygon p in millPath)
             {
-
                 LinkedListNode<Node> n = p.points.First;
                 bool first = true;
+
                 while (n != null)
                 {
                     LinkedListNode<Node> nPrev = n.Previous ?? p.points.Last;
@@ -472,30 +466,30 @@ namespace KiCad2Gcode
                         }
                     }
 
-
-
-
                     n = n.Next;
                 }
+
                 pBox.Image = bmp;
                 pBox.Refresh();
-
             }
+
             pBox.Refresh();
         }
 
         public void DrawBoardMillPath(Polygon boardMillPath)
         {
+            if (bmp == null) return;
+
             if (boardMillPath != null)
             {
                 LinkedListNode<Node> n = boardMillPath.points.First;
                 bool first = true;
+
                 while (n != null)
                 {
                     LinkedListNode<Node> nPrev = n.Previous ?? boardMillPath.points.Last;
                     DrawChunk(nPrev.Value.pt, n.Value.pt, n.Value.arc, bmp, Color.LightBlue);
 
-
                     if (drawDots)
                     {
                         if (first)
@@ -518,31 +512,26 @@ namespace KiCad2Gcode
                         }
                     }
 
-
-
-
                     n = n.Next;
                 }
             }
+
             pBox.Refresh();
         }
 
         public void DrawBoardHolesMillPath(List<Polygon> boardHolesMillPath)
         {
+            if (bmp == null || boardHolesMillPath == null) return;
+
             foreach (Polygon p in boardHolesMillPath)
             {
-
                 LinkedListNode<Node> n = p.points.First;
                 bool first = true;
+
                 while (n != null)
                 {
                     LinkedListNode<Node> nPrev = n.Previous ?? p.points.Last;
                     DrawChunk(nPrev.Value.pt, n.Value.pt, n.Value.arc, bmp, Color.LightBlue);
-
-
-
-
-
 
                     if (drawDots)
                     {
@@ -566,26 +555,24 @@ namespace KiCad2Gcode
                         }
                     }
 
-
-
-
                     n = n.Next;
                 }
-
-
             }
+
             pBox.Refresh();
         }
 
         public void DrawFieldMillPath(Polygon p)
         {
+            if (bmp == null || p == null) return;
+
             LinkedListNode<Node> n = p.points.First;
             bool first = true;
+
             while (n != null)
             {
                 LinkedListNode<Node> nPrev = n.Previous ?? p.points.Last;
                 DrawChunk(nPrev.Value.pt, n.Value.pt, n.Value.arc, bmp, Color.LightGreen);
-
 
                 if (drawDots)
                 {
@@ -611,22 +598,22 @@ namespace KiCad2Gcode
 
                 n = n.Next;
             }
+
             pBox.Refresh();
         }
 
         public void DrawFieldMillPathList(List<Polygon> fieldsMillPath)
         {
+            if (bmp == null || fieldsMillPath == null) return;
+
             foreach (Polygon p in fieldsMillPath)
             {
                 DrawFieldMillPath(p);
             }
-            
         }
 
         public void InitDrawer(Net[] netList, Figure cuts)
         {
-            /* fetch border size */
-
             double minX = 0, maxX = 0, minY = 0, maxY = 0;
             bool valid = false;
 
@@ -634,46 +621,91 @@ namespace KiCad2Gcode
             {
                 foreach (Net net in netList)
                 {
-                    foreach (Figure f in net.figures)
+                    if (net.figures != null)
                     {
-                        if (valid == false)
+                        foreach (Figure f in net.figures)
                         {
-                            minX = f.shape.extPoint[0].x;
-                            maxY = f.shape.extPoint[1].y;
-                            maxX = f.shape.extPoint[2].x;
-                            minY = f.shape.extPoint[3].y;
-                            valid = true;
+                            if (f == null || f.shape == null || f.shape.extPoint == null || f.shape.extPoint.Length < 4)
+                            {
+                                continue;
+                            }
+
+                            if (valid == false)
+                            {
+                                minX = f.shape.extPoint[0].x;
+                                maxY = f.shape.extPoint[1].y;
+                                maxX = f.shape.extPoint[2].x;
+                                minY = f.shape.extPoint[3].y;
+                                valid = true;
+                            }
+
+                            if (f.shape.extPoint[0].x < minX) { minX = f.shape.extPoint[0].x; }
+                            if (f.shape.extPoint[1].y > maxY) { maxY = f.shape.extPoint[1].y; }
+                            if (f.shape.extPoint[2].x > maxX) { maxX = f.shape.extPoint[2].x; }
+                            if (f.shape.extPoint[3].y < minY) { minY = f.shape.extPoint[3].y; }
                         }
-
-                        if (f.shape.extPoint[0].x < minX) { minX = f.shape.extPoint[0].x; }
-                        if (f.shape.extPoint[1].y > maxY) { maxY = f.shape.extPoint[1].y; }
-                        if (f.shape.extPoint[2].x > maxX) { maxX = f.shape.extPoint[2].x; }
-                        if (f.shape.extPoint[3].y < minY) { minY = f.shape.extPoint[3].y; }
                     }
                 }
-                foreach (Net z in netList)
+
+                foreach (Net net in netList)
                 {
-                    foreach (Figure f in z.zoneFigures)
+                    if (net.zoneFigures != null)
                     {
-                        if (f.shape.extPoint[0].x < minX) { minX = f.shape.extPoint[0].x; }
-                        if (f.shape.extPoint[1].y > maxY) { maxY = f.shape.extPoint[1].y; }
-                        if (f.shape.extPoint[2].x > maxX) { maxX = f.shape.extPoint[2].x; }
-                        if (f.shape.extPoint[3].y < minY) { minY = f.shape.extPoint[3].y; }
+                        foreach (Figure f in net.zoneFigures)
+                        {
+                            if (f == null || f.shape == null || f.shape.extPoint == null || f.shape.extPoint.Length < 4)
+                            {
+                                continue;
+                            }
+
+                            if (valid == false)
+                            {
+                                minX = f.shape.extPoint[0].x;
+                                maxY = f.shape.extPoint[1].y;
+                                maxX = f.shape.extPoint[2].x;
+                                minY = f.shape.extPoint[3].y;
+                                valid = true;
+                            }
+
+                            if (f.shape.extPoint[0].x < minX) { minX = f.shape.extPoint[0].x; }
+                            if (f.shape.extPoint[1].y > maxY) { maxY = f.shape.extPoint[1].y; }
+                            if (f.shape.extPoint[2].x > maxX) { maxX = f.shape.extPoint[2].x; }
+                            if (f.shape.extPoint[3].y < minY) { minY = f.shape.extPoint[3].y; }
+                        }
                     }
                 }
             }
 
-
-
-
-            if (cuts != null && cuts.shape != null && cuts.shape.points.Count > 0)
+            if (cuts != null &&
+                cuts.shape != null &&
+                cuts.shape.points != null &&
+                cuts.shape.points.Count > 0 &&
+                cuts.shape.extPoint != null &&
+                cuts.shape.extPoint.Length >= 4)
             {
-                if (cuts.shape.extPoint[0].x < minX) { minX = cuts.shape.extPoint[0].x; }
-                if (cuts.shape.extPoint[1].y > maxY) { maxY = cuts.shape.extPoint[1].y; }
-                if (cuts.shape.extPoint[2].x > maxX) { maxX = cuts.shape.extPoint[2].x; }
-                if (cuts.shape.extPoint[3].y < minY) { minY = cuts.shape.extPoint[3].y; }
+                if (valid == false)
+                {
+                    minX = cuts.shape.extPoint[0].x;
+                    maxY = cuts.shape.extPoint[1].y;
+                    maxX = cuts.shape.extPoint[2].x;
+                    minY = cuts.shape.extPoint[3].y;
+                    valid = true;
+                }
+                else
+                {
+                    if (cuts.shape.extPoint[0].x < minX) { minX = cuts.shape.extPoint[0].x; }
+                    if (cuts.shape.extPoint[1].y > maxY) { maxY = cuts.shape.extPoint[1].y; }
+                    if (cuts.shape.extPoint[2].x > maxX) { maxX = cuts.shape.extPoint[2].x; }
+                    if (cuts.shape.extPoint[3].y < minY) { minY = cuts.shape.extPoint[3].y; }
+                }
             }
 
+            if (valid == false)
+            {
+                bmp = null;
+                pBox.Image = null;
+                return;
+            }
 
             maxX += 10;
             minX -= 10;
@@ -686,10 +718,57 @@ namespace KiCad2Gcode
             int sizeX = (int)(sizeXd * scale);
             int sizeY = (int)(sizeYd * scale);
 
-            /* create image */
+            if (sizeX <= 0 || sizeY <= 0 || sizeX > 20000 || sizeY > 20000)
+            {
+                MessageBox.Show(
+                    "Invalid bitmap size before creation.\n\n" +
+                    "minX = " + minX + "\n" +
+                    "maxX = " + maxX + "\n" +
+                    "minY = " + minY + "\n" +
+                    "maxY = " + maxY + "\n" +
+                    "sizeXd = " + sizeXd + "\n" +
+                    "sizeYd = " + sizeYd + "\n" +
+                    "scale = " + scale + "\n" +
+                    "sizeX = " + sizeX + "\n" +
+                    "sizeY = " + sizeY,
+                    "KiCad2Gcode Error",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error
+                );
 
-            //bmp = new Bitmap(800, 600);
-            bmp = new Bitmap(sizeX, sizeY);
+                bmp = null;
+                pBox.Image = null;
+                return;
+            }
+
+            try
+            {
+                bmp = new Bitmap(sizeX, sizeY);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(
+                    "Bitmap creation failed.\n\n" +
+                    "minX = " + minX + "\n" +
+                    "maxX = " + maxX + "\n" +
+                    "minY = " + minY + "\n" +
+                    "maxY = " + maxY + "\n" +
+                    "sizeXd = " + sizeXd + "\n" +
+                    "sizeYd = " + sizeYd + "\n" +
+                    "scale = " + scale + "\n" +
+                    "sizeX = " + sizeX + "\n" +
+                    "sizeY = " + sizeY + "\n\n" +
+                    ex.ToString(),
+                    "Bitmap Error",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error
+                );
+
+                bmp = null;
+                pBox.Image = null;
+                return;
+            }
+
             pBox.Width = bmp.Width;
             pBox.Height = bmp.Height;
 
@@ -705,23 +784,18 @@ namespace KiCad2Gcode
         {
             InitDrawer(netList, cuts);
 
-            
+            if (bmp == null)
+            {
+                return;
+            }
 
             DrawNetlist(netList);
-
             DrawCuts(cuts);
-
             DrawBoardHolesMillPath(boardHolesMillPath);
-
             DrawDrills(drills);
-
             DrawMillPath(millPath);
-
             DrawFieldMillPathList(fieldsMillPath);
-
-            DrawBoardMillPath(boardMillPath); 
-
+            DrawBoardMillPath(boardMillPath);
         }
-
     }
 }

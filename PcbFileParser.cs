@@ -51,19 +51,18 @@ namespace KiCad2Gcode
             }
             else
             {
-                element.values = element.values.Replace('.', ',');
-                string[] valStr = element.values.Split(' ');
+                string[] valStr = element.values.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
                 if (valStr.Length >= min && valStr.Length <= max)
                 {
                     result = new double[valStr.Length];
-                    try
+                    for (int i = 0; i < valStr.Length; i++)
                     {
-                        for(int i = 0;i<valStr.Length;i++)
+                        if (double.TryParse(valStr[i], NumberStyles.Float | NumberStyles.AllowThousands, CultureInfo.InvariantCulture, out double value) == false)
                         {
-                            result[i] = double.Parse(valStr[i]);
+                            return null;
                         }
+                        result[i] = value;
                     }
-                    catch { return null; }
                 }
                 else { return null; }
             }
@@ -82,12 +81,14 @@ namespace KiCad2Gcode
             }
             else
             {
-                element.values = element.values.Replace('.', ',');
-                try
+                if (double.TryParse(element.values, NumberStyles.Float | NumberStyles.AllowThousands, CultureInfo.InvariantCulture, out double value))
                 {
-                    result = double.Parse(element.values);
+                    result = value;
                 }
-                catch { return Double.NaN; }
+                else
+                {
+                    return Double.NaN;
+                }
             }
             return result;
         }
@@ -299,7 +300,7 @@ namespace KiCad2Gcode
                 {
                     /*add hole */
                     double drill = pad.ParseParameterNumeric("drill");
-                    if (drill == Double.NaN) { return; }
+                    if (double.IsNaN(drill)) { return; }
 
                     PcbFileElement drillEl = pad.FindElement("drill");
                     double[] offsetArr = drillEl.ParseParameterNumericArr("offset", 2, 2);
@@ -324,10 +325,10 @@ namespace KiCad2Gcode
                     bool[] chamfer = { false, false, false, false };
 
                     double roundRatio = pad.ParseParameterNumeric("roundrect_rratio");
-                    if(roundRatio == Double.NaN) { return; }
+                    if (double.IsNaN(roundRatio)) { return; }
 
                     double chamferRatio = pad.ParseParameterNumeric("chamfer_ratio");
-                    if (chamferRatio == Double.NaN) { return; }
+                    if (double.IsNaN(chamferRatio)) { return; }
 
                     PcbFileElement element = pad.FindElement("chamfer");
                     if (element != null)
@@ -867,10 +868,10 @@ namespace KiCad2Gcode
                 if (pos == null) { return; }
 
                 double size = via.ParseParameterNumeric("size");
-                if (size == Double.NaN) { return; }
+                if (double.IsNaN(size)) { return; }
 
                 double drill = via.ParseParameterNumeric("drill");
-                if (drill == Double.NaN) { return; }
+                if (double.IsNaN(drill)) { return; }
 
                 Figure f = new Figure();
                 Arc arc = new Arc();
@@ -1000,7 +1001,7 @@ namespace KiCad2Gcode
                 double[] endArr = seg.ParseParameterNumericArr("end", 2, 2);
                 if (endArr == null) { return; }
                 double width = seg.ParseParameterNumeric("width");
-                if (width == Double.NaN) { return; }
+                if (double.IsNaN(width)) { return; }
 
                 startArr[0] *= xFactor;
                 endArr[0] *= xFactor;
@@ -1044,6 +1045,10 @@ namespace KiCad2Gcode
             Polygon p = new Polygon();
 
             PcbFileElement pts = parent.FindElement("pts");
+            if (pts == null)
+            {
+                return null;
+            }
 
             double x = 0;
             double y = 0;
@@ -1055,16 +1060,18 @@ namespace KiCad2Gcode
 
                 if (e.name == "xy")
                 {
-                    e.values = e.values.Replace('.', ',');
-                    string[] valStr = e.values.Split(' ');
+                    string[] valStr = e.values.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
                     if (valStr.Length == 2)
                     {
-                        try
+                        if (double.TryParse(valStr[0], NumberStyles.Float | NumberStyles.AllowThousands, CultureInfo.InvariantCulture, out x) == false)
                         {
-                            x = double.Parse(valStr[0]);
-                            y = -double.Parse(valStr[1]);
+                            return null;
                         }
-                        catch { return null; }
+                        if (double.TryParse(valStr[1], NumberStyles.Float | NumberStyles.AllowThousands, CultureInfo.InvariantCulture, out y) == false)
+                        {
+                            return null;
+                        }
+                        y = -y;
                     }
                     else { return null; }
 
@@ -1172,7 +1179,7 @@ private void DecodeLine(PcbFileElement el)
                     PcbFileElement strokeEl = el.FindElement("stroke");
                     if(strokeEl == null) { return; }
                     double width = strokeEl.ParseParameterNumeric("width");
-                    if (width == Double.NaN) { return; }
+                    if (double.IsNaN(width)) { return; }
 
                     startArr[0] *= xFactor;
                     endArr[0] *= xFactor;
@@ -1248,7 +1255,7 @@ private void DecodeLine(PcbFileElement el)
                     PcbFileElement strokeEl = el.FindElement("stroke");
                     if (strokeEl == null) { return; }
                     double width = strokeEl.ParseParameterNumeric("width");
-                    if (width == Double.NaN) { return; }
+                    if (double.IsNaN(width)) { return; }
                     bool fill = false;
                     PcbFileElement fEl = el.FindElement("fill");
                     fill = (fEl != null && fEl.values.Contains("yes"));
@@ -1500,7 +1507,7 @@ private void DecodeLine(PcbFileElement el)
                     PcbFileElement strokeEl = el.FindElement("stroke");
                     if (strokeEl == null) { return; }
                     double width = strokeEl.ParseParameterNumeric("width");
-                    if (width == Double.NaN) { return; }
+                    if (double.IsNaN(width)) { return; }
                     bool fill = false;
                     PcbFileElement fEl = el.FindElement("fill");
                     fill = (fEl != null && fEl.values.Contains("yes"));
@@ -1531,7 +1538,7 @@ private void DecodeLine(PcbFileElement el)
                     PcbFileElement strokeEl = el.FindElement("stroke");
                     if (strokeEl == null) { return; }
                     double width = strokeEl.ParseParameterNumeric("width");
-                    if (width == Double.NaN) { return; }
+                    if (double.IsNaN(width)) { return; }
                     bool fill = false;
                     PcbFileElement fEl = el.FindElement("fill");
                     fill = (fEl != null && fEl.values.Contains("yes"));
@@ -1580,7 +1587,7 @@ private void DecodeLine(PcbFileElement el)
                     PcbFileElement strokeEl = el.FindElement("stroke");
                     if (strokeEl == null) { return; }
                     double width = strokeEl.ParseParameterNumeric("width");
-                    if (width == Double.NaN) { return; }
+                    if (double.IsNaN(width)) { return; }
 
                     Polygon p = FetchPolygon(el);
                     if (p.points.Count == 4)
