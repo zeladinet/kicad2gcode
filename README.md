@@ -15,6 +15,10 @@ The purpose of this program is to create GCODE file to create PCB on CNC milling
 1. Clone this repository
 
 ```
+Updated Code
+git clone https://github.com/zeladinet/kicad2gcode
+
+Original Code
 git clone https://github.com/r-gal/KiCAD2GCode
 ```
 
